@@ -1,42 +1,24 @@
-import { FONT_SIZES } from '../config';
-
 /**
- * Функция responsiveFontSize позволяет создавать гибкий размер шрифта, зависящий от viewport size.
+ * The function allows to create responsive font size that depends on viewport size.
  * 
- * Принимает максимальный и минимальный размеры шрифта, а также значения viewport size, 
- * после которых шрифт перестает уменьшаться либо увеличиваться.
+ * Takes min and max font sizes + viewport size values, inside which the font must adapt its size
  * 
- * Автор идеи css-lock (css-шлюз): https://blog.typekit.com/2016/08/17/flexible-typography-with-css-locks/
+ * Based on CSS-lock idea by Tim Brown: https://blog.typekit.com/2016/08/17/flexible-typography-with-css-locks/
  *
- * @param {number} fsd - font size desktop. Наибольший размер шрифта
- * @param {number} fsm - font size mobile. Наименьший размер шрифта
- * @param {number} vsd - viewport size desktop. Ширина экрана, после которого шрифт перестает увеличиваться
- * @param {number} vsm - viewport size mobile. Ширина экрана, после которого шрифт перестает уменьшаться
+ * @param {number} fsd - font size desktop. Biggest font size in px (top limit)
+ * @param {number} fsm - font size mobile. Smallest font size in px (bottom limit)
+ * @param {number} vsd - viewport size desktop. After that font will stop increase its size
+ * @param {number} vsm - viewport size mobile. After that font will stop decrease its size
  */
 
 export default function(fsd, fsm, vsd, vsm) {
-  // Основной размер шрифта на сайте
-  let mainFontSize = parseInt(FONT_SIZES.main.default, 10);
+  // Calculate how many pixels we add to the font size 
+  // when the viewport size increases by 1 pixel
+  const m = (fsd - fsm) / (vsd - vsm);
+  // Calculate the font size before the viewport size starts increasing
+  const b = (fsm - m * vsm).toFixed(2);
+  // Transfer m to viewport width units
+  const mx = (m * 100).toFixed(3);
 
-  // Удаляем из строк все лишнее, оставляя только числа;
-  // Шрифт в единицах rem переводим в пиксели
-  fsd = parseFloat(fsd, 10) * mainFontSize;
-  fsm = parseFloat(fsm, 10) * mainFontSize;
-  vsd = parseInt(vsd, 10);
-  vsm = parseInt(vsm, 10);
-
-  // Вычисляем, сколько пикселей мы добавляем к размеру шрифта 
-  // при увеличении ширины области просмотра на 1 пиксель
-  let m = (fsd - fsm) / (vsd - vsm);
-  // Вычисляем размер шрифта до того, как мы начинаем увеличивать
-  //  размер области просмотра
-  let b = fsm - m * vsm;
-
-  // Умножаем "m" на ширину области просмотра "100vw"
-  let mx = (m * 100).toFixed(3);
-  // Делим "b" на основной размер шрифта на сайте, 
-  // меняя значение в пикселях обратно на rem
-  let mb = (b / mainFontSize).toFixed(2);
-
-  return `calc(${mx}vw + ${mb}rem)`;
+  return `calc(${mx}vw + ${b}px)`;
 }
